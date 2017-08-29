@@ -10,6 +10,7 @@ import {
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <button class="previous"
+            [disabled]="calendar.disableLeftArrow"
             [style.visibility]="calendar.hideLeftArrow ? 'hidden' : 'visible'"
             (click)="navTo(true)"><span>&lsaquo;</span>
     </button>
@@ -24,6 +25,7 @@ import {
     ><span>{{ calendar.yearTitle }}</span></button>
 
     <button class="next"
+            [disabled]="calendar.disableRightArrow"
             [style.visibility]="calendar.hideRightArrow ? 'hidden' : 'visible'"
             (click)="navTo(false)"><span>&rsaquo;</span>
     </button>

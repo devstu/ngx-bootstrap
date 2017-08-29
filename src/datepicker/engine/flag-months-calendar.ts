@@ -1,6 +1,7 @@
 import { isSameMonth } from '../../bs-moment/utils/date-getters';
 import { MonthsCalendarViewModel, CalendarCellViewModel } from '../models/index';
-import { isMonthDisabled } from '../utils/bs-calendar-utils';
+import { isMonthDisabled, isYearDisabled } from '../utils/bs-calendar-utils';
+import { shiftDate } from '../../bs-moment/utils/date-setters';
 
 export interface FlagMonthCalendarOptions {
   minDate: Date;
@@ -30,6 +31,15 @@ export function flagMonthsCalendar(monthCalendar: MonthsCalendarViewModel,
     && options.monthIndex !== options.displayMonths;
   monthCalendar.hideRightArrow = options.monthIndex < options.displayMonths
     && (options.monthIndex + 1) !== options.displayMonths;
+
+  monthCalendar.disableLeftArrow = isYearDisabled(
+    shiftDate(monthCalendar.months[0][0].date, {year: -1}),
+    options.minDate,
+    options.maxDate);
+  monthCalendar.disableRightArrow = isYearDisabled(
+    shiftDate(monthCalendar.months[0][0].date, {year: 1}),
+    options.minDate,
+    options.maxDate);
 
   return monthCalendar;
 }

@@ -9,6 +9,8 @@ export interface NavigationViewModel {
   yearTitle: string;
   hideLeftArrow?: boolean;
   hideRightArrow?: boolean;
+  disableLeftArrow?: boolean;
+  disableRightArrow?: boolean;
 }
 
 export interface CalendarCellViewModel {
