@@ -229,6 +229,7 @@ export class BsDatepickerContainerComponent implements OnInit {
   }
 
   monthSelectHandler(event: MonthViewModel): void {
+    if (event.isDisabled) { return; }
     this._bsDatepickerStore.dispatch(this._actions.navigateTo({
       unit: {month: getMonth(event.date)},
       viewMode: 'day'
@@ -236,6 +237,7 @@ export class BsDatepickerContainerComponent implements OnInit {
   }
 
   yearSelectHandler(event: YearViewModel): void {
+    if (event.isDisabled) { return; }
     this._bsDatepickerStore.dispatch(this._actions.navigateTo({
       unit: {year: getFullYear(event.date)},
       viewMode: 'month'

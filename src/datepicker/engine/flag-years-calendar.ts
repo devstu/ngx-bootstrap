@@ -16,9 +16,7 @@ export function flagYearsCalendar(yearsCalendar: YearsCalendarViewModel, options
     .forEach((years: YearViewModel[], rowIndex: number) => {
       years.forEach((year: YearViewModel, yearIndex: number) => {
         const isHovered = isSameYear(year.date, options.hoveredYear);
-
-        const isDisabled = isSameOrBefore(startOf(year.date, 'year'), options.minDate, 'year')
-          || isSameOrAfter(endOf(year.date, 'year'), options.maxDate, 'year');
+        const isDisabled = isYearDisabled(year.date, options.minDate, options.maxDate);
 
         const newMonth = Object.assign(/*{},*/ year, {isHovered, isDisabled});
         if (year.isHovered !== newMonth.isHovered
@@ -35,4 +33,11 @@ export function flagYearsCalendar(yearsCalendar: YearsCalendarViewModel, options
     && (options.yearIndex + 1) !== options.displayMonths;
 
   return yearsCalendar;
+}
+
+function isYearDisabled(date: Date, min: Date, max: Date): boolean {
+  const minBound = min && isSameOrBefore(endOf(date, 'year'), min, 'day');
+  const maxBound = max && isSameOrAfter(startOf(date, 'year'), max, 'day');
+
+  return minBound || maxBound;
 }

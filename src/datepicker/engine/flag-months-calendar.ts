@@ -1,6 +1,7 @@
 import { MonthsCalendarViewModel, MonthViewModel } from '../models/index';
 import { isSameMonth } from '../../bs-moment/utils/date-getters';
 import { isSameOrAfter, isSameOrBefore } from '../../bs-moment/utils/date-compare';
+import { endOf, startOf } from '../../bs-moment/utils/start-end-of';
 
 export interface FlagMonthCalendarOptions {
   minDate: Date;
@@ -10,13 +11,13 @@ export interface FlagMonthCalendarOptions {
   monthIndex: number;
 }
 
-export function flagMonthsCalendar(monthCalendar: MonthsCalendarViewModel, options: FlagMonthCalendarOptions): MonthsCalendarViewModel {
+export function flagMonthsCalendar(monthCalendar: MonthsCalendarViewModel,
+                                   options: FlagMonthCalendarOptions): MonthsCalendarViewModel {
   monthCalendar.months
     .forEach((months: MonthViewModel[], rowIndex: number) => {
       months.forEach((month: MonthViewModel, monthIndex: number) => {
         const isHovered = isSameMonth(month.date, options.hoveredMonth);
-        const isDisabled = isSameOrBefore(month.date, options.minDate, 'month')
-          || isSameOrAfter(month.date, options.maxDate, 'month');
+        const isDisabled = isMonthDisabled(month.date, options.minDate, options.maxDate)
         const newMonth = Object.assign(/*{},*/ month, {isHovered, isDisabled});
         if (month.isHovered !== newMonth.isHovered
           || month.isDisabled !== newMonth.isDisabled) {
@@ -32,4 +33,11 @@ export function flagMonthsCalendar(monthCalendar: MonthsCalendarViewModel, optio
     && (options.monthIndex + 1) !== options.displayMonths;
 
   return monthCalendar;
+}
+
+function isMonthDisabled(date: Date, min: Date, max: Date): boolean {
+  const minBound = min && isSameOrBefore(endOf(date, 'month'), min, 'day');
+  const maxBound = max && isSameOrAfter(startOf(date, 'month'), max, 'day');
+
+  return minBound || maxBound;
 }
