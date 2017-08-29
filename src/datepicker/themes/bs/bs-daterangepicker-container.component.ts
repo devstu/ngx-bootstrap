@@ -1,184 +1,68 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { BsDatepickerStore } from '../../reducer/bs-datepicker.store';
-import { BsDatepickerActions } from '../../reducer/bs-datepicker.actions';
-import {
-  BsNavigationEvent, DatepickerRenderOptions, CalendarCellViewModel, DayViewModel,
-  DaysCalendarViewModel, BsDatepickerViewMode, MonthsCalendarViewModel, YearsCalendarViewModel, CellHoverEvent
-} from '../../models/index';
+import { Component, EventEmitter, OnInit } from '@angular/core';
 import 'rxjs/add/operator/filter';
-import { Observable } from 'rxjs/Observable';
-import { BsCustomDates } from './bs-custom-dates-view.component';
+import { BsDatepickerConfig } from '../../bs-datepicker.config';
+import { BsDatepickerContainer, DayViewModel } from '../../models/index';
+import { BsDatepickerActions } from '../../reducer/bs-datepicker.actions';
+import { BsDatepickerEffects } from '../../reducer/bs-datepicker.effects';
+import { BsDatepickerStore } from '../../reducer/bs-datepicker.store';
 
 @Component({
   selector: 'bs-daterangepicker-container',
   providers: [BsDatepickerStore],
-  template: `
-    <div class="bs-datepicker theme-green">
-      <div class="bs-datepicker-container">
-
-        <!--calendars-->
-        <div class="bs-calendar-container" [ngSwitch]="viewMode | async">
-          <!--days calendar-->
-          <div *ngSwitchCase="'day'">
-            <bs-days-calendar-view
-              *ngFor="let calendar of (daysCalendar | async)"
-              [class.bs-datepicker-multiple]="(daysCalendar | async).length > 1"
-              [calendar]="calendar"
-              [options]="options | async"
-              (onNavigate)="navigateTo($event)"
-              (onViewMode)="setViewMode($event)"
-              (onHover)="dayHoverHandler($event)"
-              (onSelect)="daySelectHandler($event)"
-            ></bs-days-calendar-view>
-          </div>
-
-          <!--months calendar-->
-          <div *ngSwitchCase="'month'">
-            <bs-month-calendar-view
-              *ngFor="let calendar of (monthsCalendar | async)"
-              [calendar]="calendar"
-              (onNavigate)="navigateTo($event)"
-              (onViewMode)="setViewMode($event)"
-              (onHover)="monthHoverHandler($event)"
-              (onSelect)="monthSelectHandler($event)"
-            ></bs-month-calendar-view>
-          </div>
-
-          <!--years calendar-->
-          <div *ngSwitchCase="'year'">
-            <bs-years-calendar-view
-              *ngFor="let calendar of (yearsCalendar | async)"
-              [calendar]="calendar"
-              (onNavigate)="navigateTo($event)"
-              (onViewMode)="setViewMode($event)"
-              (onHover)="yearHoverHandler($event)"
-            ></bs-years-calendar-view>
-          </div>
-
-        </div>
-
-        <!--apply\cancel buttons-->
-        <div class="bs-datepicker-buttons">
-          <button class="btn btn-success">Apply</button>
-          <button class="btn btn-default">Cancel</button>
-        </div>
-
-      </div>
-
-      <!--custom dates or date ranges picker-->
-      <div class="bs-datepicker-custom-range">
-        <bs-custom-date-view [ranges]="_customRangesFish"></bs-custom-date-view>
-      </div>
-    </div>`,
+  templateUrl: './bs-datepicker-view.html',
   host: {
     '(click)': '_stopPropagation($event)',
     style: 'position: absolute; display: block;'
   }
 })
-export class BsDaterangepickerContainerComponent implements OnInit {
-  @Input()
+export class BsDaterangepickerContainerComponent
+  extends BsDatepickerContainer
+  implements OnInit {
+
   set value(value: Date[]) {
-    this._bsDatepickerStore.dispatch(this._actions.selectRange(value || []));
+    this._store.dispatch(this._actions.selectRange(value || []));
   }
 
-  @Output() valueChange = new EventEmitter<Date[]>();
-
-  viewMode: Observable<BsDatepickerViewMode>;
-  daysCalendar: Observable<DaysCalendarViewModel[]>;
-  monthsCalendar: Observable<MonthsCalendarViewModel[]>;
-  yearsCalendar: Observable<YearsCalendarViewModel[]>;
-  options: Observable<DatepickerRenderOptions>;
+  valueChange = new EventEmitter<Date[]>();
 
   _rangeStack: Date[] = [];
-  /** @deperecated */
-  _customRangesFish: BsCustomDates[] = [
-    {label: 'today', value: new Date()},
-    {label: 'today1', value: new Date()},
-    {label: 'today2', value: new Date()},
-    {label: 'today3', value: new Date()}
-  ];
 
-  constructor(private _bsDatepickerStore: BsDatepickerStore,
-              private _actions: BsDatepickerActions) {
-    // data binding state <--> model
-    // days calendar
-    this.daysCalendar = this._bsDatepickerStore.select(state => state.flaggedMonths)
-      .filter(months => !!months);
+  constructor(private _config: BsDatepickerConfig,
+              private _store: BsDatepickerStore,
+              private _actions: BsDatepickerActions,
+              _effects: BsDatepickerEffects) {
+    super();
+    this._effects = _effects;
+  }
 
-    // month calendar
-    this.monthsCalendar = this._bsDatepickerStore.select(state => state.flaggedMonthsCalendar)
-      .filter(months => !!months);
+  ngOnInit(): void {
+    this._effects
+      .init(this._store)
+      // intial state options
+      // todo: fix this, split configs
+      .setOptions(Object.assign({}, this._config, {displayMonths: 2}))
+      // data binding view --> model
+      .setBindings(this)
+      // set event handlers
+      .setEventHandlers(this)
+      .registerDatepickerSideEffects();
 
-    // year calendar
-    this.yearsCalendar = this._bsDatepickerStore.select(state => state.yearsCalendarFlagged)
-      .filter(years => !!years);
-
-    this.viewMode = this._bsDatepickerStore.select(state => state.view.mode);
-
-    // set render options
-    this._bsDatepickerStore.dispatch(this._actions.setOptions({
-      displayMonths: 2,
-      showWeekNumbers: true
-    }));
-
+    // todo: move it somewhere else
     // on selected date change
-    this._bsDatepickerStore.select(state => state.selectedRange)
+    this._store.select(state => state.selectedRange)
       .subscribe(date => this.valueChange.emit(date));
-
-    // TODO: extract effects
-    // calculate month model on view model change
-    this._bsDatepickerStore
-      .select(state => state.view)
-      .subscribe(() => this._bsDatepickerStore.dispatch(this._actions.calculate()));
-
-    // format calendar values on month model change
-    this._bsDatepickerStore
-      .select(state => state.monthsModel)
-      .filter(monthModel => !!monthModel)
-      .subscribe(month =>
-        this._bsDatepickerStore.dispatch(this._actions.format()));
-
-    // flag day values
-    this._bsDatepickerStore
-      .select(state => state.formattedMonths)
-      .filter(month => !!month)
-      .subscribe(month =>
-        this._bsDatepickerStore.dispatch(this._actions.flag()));
-
-    // flag day values
-    this._bsDatepickerStore.select(state => state.selectedRange)
-      .filter(selectedRange => !!selectedRange)
-      .subscribe(selectedRange =>
-        this._bsDatepickerStore.dispatch(this._actions.flag()));
-
-    // on hover
-    this._bsDatepickerStore.select(state => state.hoveredDate)
-      .filter(hoveredDate => !!hoveredDate)
-      .subscribe(hoveredDate =>
-        this._bsDatepickerStore.dispatch(this._actions.flag()));
   }
 
-  ngOnInit() {
-    // this._bsDatepickerStore.dispatch(this._actions.init());
-  }
-
-  navigateTo(event: BsNavigationEvent): void {
-    this._bsDatepickerStore.dispatch(this._actions.navigateStep(event.step));
-  }
-
-  hoverHandler(event: CellHoverEvent): void {
-    if ((event.cell as DayViewModel).isOtherMonth) {
-      return;
-    }
-    this._bsDatepickerStore.dispatch(this._actions.hoverDay(event));
-    event.cell.isHovered = event.isHovered;
-  }
-
-  selectHandler(day: DayViewModel): void {
-    if (day.isOtherMonth) {
+  daySelectHandler(day: DayViewModel): void {
+    if (day.isOtherMonth || day.isDisabled) {
       return;
     }
 
+    // if only one date is already selected
+    // and user clicks on previous date
+    // start selection from new date
+    // but if new date is after initial one
+    // than finish selection
     if (this._rangeStack.length === 1) {
       this._rangeStack = day.date >= this._rangeStack[0]
         ? [this._rangeStack[0], day.date]
@@ -189,14 +73,10 @@ export class BsDaterangepickerContainerComponent implements OnInit {
       this._rangeStack = [day.date];
     }
 
-    this._bsDatepickerStore.dispatch(this._actions.selectRange(this._rangeStack));
+    this._store.dispatch(this._actions.selectRange(this._rangeStack));
 
     if (this._rangeStack.length === 2) {
       this._rangeStack = [];
     }
-  }
-
-  _stopPropagation(event: any): void {
-    event.stopPropagation();
   }
 }

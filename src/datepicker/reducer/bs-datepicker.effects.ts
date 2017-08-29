@@ -84,12 +84,6 @@ export class BsDatepickerEffects {
     container.options = this._store.select(state => state.showWeekNumbers)
       .map(showWeekNumbers => ({showWeekNumbers}));
 
-    // todo: move it somewhere else
-    // on selected date change
-    this._store
-      .select(state => state.selectedDate)
-      .subscribe(date => container.valueChange.emit(date));
-
     return this;
   }
 
@@ -123,12 +117,12 @@ export class BsDatepickerEffects {
     };
 
     /** select handlers */
-    container.daySelectHandler = (day: DayViewModel): void => {
-      if (day.isOtherMonth || day.isDisabled) {
-        return;
-      }
-      this._store.dispatch(this._actions.select(day.date));
-    };
+    // container.daySelectHandler = (day: DayViewModel): void => {
+    //   if (day.isOtherMonth || day.isDisabled) {
+    //     return;
+    //   }
+    //   this._store.dispatch(this._actions.select(day.date));
+    // };
 
     container.monthSelectHandler = (event: CalendarCellViewModel): void => {
       if (event.isDisabled) { return; }

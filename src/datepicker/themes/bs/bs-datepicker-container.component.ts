@@ -1,9 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, EventEmitter, OnInit } from '@angular/core';
 
 import { BsDatepickerConfig } from '../../bs-datepicker.config';
-import { BsDatepickerContainer } from '../../models/index';
+import { BsDatepickerContainer, DayViewModel } from '../../models/index';
 import { BsDatepickerEffects } from '../../reducer/bs-datepicker.effects';
 import { BsDatepickerStore } from '../../reducer/bs-datepicker.store';
+import { BsDatepickerActions } from '../../reducer/bs-datepicker.actions';
 
 @Component({
   selector: 'bs-datepicker-container',
@@ -18,8 +19,15 @@ export class BsDatepickerContainerComponent
   extends BsDatepickerContainer
   implements OnInit {
 
+  set value(value: Date) {
+    this._effects.setValue(value);
+  }
+
+  valueChange: EventEmitter<Date> = new EventEmitter<Date>();
+
   constructor(private _config: BsDatepickerConfig,
               private _store: BsDatepickerStore,
+              private _actions: BsDatepickerActions,
               _effects: BsDatepickerEffects) {
     super();
     this._effects = _effects;
@@ -35,9 +43,18 @@ export class BsDatepickerContainerComponent
       // set event handlers
       .setEventHandlers(this)
       .registerDatepickerSideEffects();
+
+    // todo: move it somewhere else
+    // on selected date change
+    this._store
+      .select(state => state.selectedDate)
+      .subscribe(date => this.valueChange.emit(date));
   }
 
-  _stopPropagation(event: any): void {
-    event.stopPropagation();
+  daySelectHandler(day: DayViewModel): void {
+    if (day.isOtherMonth || day.isDisabled) {
+      return;
+    }
+    this._store.dispatch(this._actions.select(day.date));
   }
 }

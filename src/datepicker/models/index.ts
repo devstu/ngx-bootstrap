@@ -137,10 +137,6 @@ export abstract class BsDatepickerContainer {
 
   _effects: BsDatepickerEffects;
 
-  set value(value: Date) {
-    this._effects.setValue(value);
-  }
-
   set minDate(value: Date) {
     this._effects.setMinDate(value);
   }
@@ -149,7 +145,6 @@ export abstract class BsDatepickerContainer {
     this._effects.setMaxDate(value);
   }
 
-  valueChange: EventEmitter<Date> = new EventEmitter<Date>();
 
   viewMode: Observable<BsDatepickerViewMode>;
   daysCalendar: Observable<DaysCalendarViewModel[]>;
@@ -167,9 +162,13 @@ export abstract class BsDatepickerContainer {
 
   yearHoverHandler(event: CellHoverEvent): void {}
 
-  daySelectHandler(day: DayViewModel): void {}
+  daySelectHandler(day: DayViewModel): void {};
 
   monthSelectHandler(event: CalendarCellViewModel): void {}
 
   yearSelectHandler(event: CalendarCellViewModel): void {}
+
+  _stopPropagation(event: any): void {
+    event.stopPropagation();
+  }
 }
