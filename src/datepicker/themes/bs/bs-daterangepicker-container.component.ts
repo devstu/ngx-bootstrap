@@ -26,7 +26,7 @@ import { BsCustomDates } from './bs-custom-dates-view.component';
               [calendar]="calendar"
               [options]="options | async"
               (onNavigate)="navigateTo($event)"
-              (onViewMode)="changeViewMode($event)"
+              (onViewMode)="setViewMode($event)"
               (onHover)="dayHoverHandler($event)"
               (onSelect)="daySelectHandler($event)"
             ></bs-days-calendar-view>
@@ -38,7 +38,7 @@ import { BsCustomDates } from './bs-custom-dates-view.component';
               *ngFor="let calendar of (monthsCalendar | async)"
               [calendar]="calendar"
               (onNavigate)="navigateTo($event)"
-              (onViewMode)="changeViewMode($event)"
+              (onViewMode)="setViewMode($event)"
               (onHover)="monthHoverHandler($event)"
               (onSelect)="monthSelectHandler($event)"
             ></bs-month-calendar-view>
@@ -50,7 +50,7 @@ import { BsCustomDates } from './bs-custom-dates-view.component';
               *ngFor="let calendar of (yearsCalendar | async)"
               [calendar]="calendar"
               (onNavigate)="navigateTo($event)"
-              (onViewMode)="changeViewMode($event)"
+              (onViewMode)="setViewMode($event)"
               (onHover)="yearHoverHandler($event)"
             ></bs-years-calendar-view>
           </div>

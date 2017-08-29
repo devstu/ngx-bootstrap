@@ -1,4 +1,8 @@
 import { TimeUnit } from '../../bs-moment/types';
+import { Observable } from 'rxjs/Observable';
+import { EventEmitter } from '@angular/core';
+import { BsDatepickerEffects } from '../reducer/bs-datepicker.effects';
+import { BsCustomDates } from '../themes/bs/bs-custom-dates-view.component';
 
 export type BsDatepickerViewMode = 'day' | 'month' | 'year';
 
@@ -117,4 +121,55 @@ export interface BsViewNavigationEvent {
 export interface CellHoverEvent {
   cell: CalendarCellViewModel;
   isHovered: boolean;
+}
+
+// todo: move to base class
+// datepicker container component
+/* tslint:disable no-empty */
+export abstract class BsDatepickerContainer {
+  /** @deperecated */
+  _customRangesFish: BsCustomDates[] = [
+    {label: 'today', value: new Date()},
+    {label: 'today1', value: new Date()},
+    {label: 'today2', value: new Date()},
+    {label: 'today3', value: new Date()}
+  ];
+
+  _effects: BsDatepickerEffects;
+
+  set value(value: Date) {
+    this._effects.setValue(value);
+  }
+
+  set minDate(value: Date) {
+    this._effects.setMinDate(value);
+  }
+
+  set maxDate(value: Date) {
+    this._effects.setMaxDate(value);
+  }
+
+  valueChange: EventEmitter<Date> = new EventEmitter<Date>();
+
+  viewMode: Observable<BsDatepickerViewMode>;
+  daysCalendar: Observable<DaysCalendarViewModel[]>;
+  monthsCalendar: Observable<MonthsCalendarViewModel[]>;
+  yearsCalendar: Observable<YearsCalendarViewModel[]>;
+  options: Observable<DatepickerRenderOptions>;
+
+  setViewMode(event: BsDatepickerViewMode): void {}
+
+  navigateTo(event: BsNavigationEvent): void {}
+
+  dayHoverHandler(event: CellHoverEvent): void {}
+
+  monthHoverHandler(event: CellHoverEvent): void {}
+
+  yearHoverHandler(event: CellHoverEvent): void {}
+
+  daySelectHandler(day: DayViewModel): void {}
+
+  monthSelectHandler(event: CalendarCellViewModel): void {}
+
+  yearSelectHandler(event: CalendarCellViewModel): void {}
 }
