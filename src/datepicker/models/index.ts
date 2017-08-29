@@ -3,13 +3,24 @@ import { TimeUnit } from '../../bs-moment/types';
 export type BsDatepickerViewMode = 'day' | 'month' | 'year';
 
 /** *************** */
-// days matrix: day view model
-export interface DayViewModel {
+// navigation bar settings
+export interface NavigationViewModel {
+  monthTitle: string;
+  yearTitle: string;
+  hideLeftArrow?: boolean;
+  hideRightArrow?: boolean;
+}
+
+export interface CalendarCellViewModel {
   date: Date;
   label: string;
-  // flag step
   isDisabled?: boolean;
   isHovered?: boolean;
+}
+
+/** *************** */
+// days matrix: day cell view model
+export interface DayViewModel extends CalendarCellViewModel {
   isOtherMonth?: boolean;
   isInRange?: boolean;
   isSelectionStart?: boolean;
@@ -26,58 +37,28 @@ export interface WeekViewModel {
 }
 
 // todo: split navigation settings
-export interface DaysCalendarViewModel {
+export interface DaysCalendarViewModel extends NavigationViewModel {
   weeks: WeekViewModel[];
   // additional information
   month: Date;
   weekNumbers: string[];
   weekdays: string[];
-  // navigation details
-  monthTitle: string;
-  yearTitle: string;
-  hideLeftArrow?: boolean;
-  hideRightArrow?: boolean;
 }
 
 /** *************** */
-// months matrix: month view model
-export interface MonthViewModel {
-  date: Date;
-  label: string;
-  isDisabled?: boolean;
-  isHovered?: boolean;
-}
-
 // months calendar
-export interface MonthsCalendarViewModel {
-  months: MonthViewModel[][];
-  // navigation
-  monthTitle: string;
-  yearTitle: string;
-  hideLeftArrow?: boolean;
-  hideRightArrow?: boolean;
+export interface MonthsCalendarViewModel extends NavigationViewModel {
+  months: CalendarCellViewModel[][];
 }
 
 /** *************** */
-// years matrix: year view model
-export interface YearViewModel {
-  date: Date;
-  label: string;
-  isDisabled?: boolean;
-  isHovered?: boolean;
-}
-
 // years calendar
-export interface YearsCalendarViewModel {
-  years: YearViewModel[][];
-  // navigation
-  monthTitle: string;
-  yearTitle: string;
-  hideLeftArrow?: boolean;
-  hideRightArrow?: boolean;
+export interface YearsCalendarViewModel extends NavigationViewModel {
+  years: CalendarCellViewModel[][];
 }
 
 /** *************** */
+
 // math model
 /** *************** */
 
@@ -131,20 +112,7 @@ export interface BsViewNavigationEvent {
   viewMode: BsDatepickerViewMode;
 }
 
-// used to mark hovered day on days matrix
-export interface DayHoverEvent {
-  day: DayViewModel;
-  isHovered: boolean;
-}
-
-// used to mark hovered month on months matrix
-export interface MonthHoverEvent {
-  month: MonthViewModel;
-  isHovered: boolean;
-}
-
-// used to mark hovered year on months matrix
-export interface YearHoverEvent {
-  year: YearViewModel;
+export interface CellHoverEvent {
+  cell: CalendarCellViewModel;
   isHovered: boolean;
 }

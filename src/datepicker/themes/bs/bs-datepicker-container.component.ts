@@ -1,30 +1,27 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-
-import 'rxjs/add/operator/filter';
+import 'rxjs/add/observable/combineLatest';
 import 'rxjs/add/operator/debounceTime';
 import 'rxjs/add/operator/distinctUntilChanged';
-import 'rxjs/add/observable/combineLatest';
+
+import 'rxjs/add/operator/filter';
 
 import { Observable } from 'rxjs/Observable';
 import { getFullYear, getMonth } from '../../../bs-moment/utils/date-getters';
+import { BsDatepickerConfig } from '../../bs-datepicker.config';
 import {
   BsDatepickerViewMode,
   BsNavigationEvent,
+  CalendarCellViewModel,
+  CellHoverEvent,
   DatepickerRenderOptions,
-  DayHoverEvent,
   DaysCalendarViewModel,
   DayViewModel,
-  MonthHoverEvent,
   MonthsCalendarViewModel,
-  MonthViewModel,
-  YearHoverEvent,
-  YearsCalendarViewModel,
-  YearViewModel
+  YearsCalendarViewModel
 } from '../../models/index';
 import { BsDatepickerActions } from '../../reducer/bs-datepicker.actions';
 import { BsDatepickerStore } from '../../reducer/bs-datepicker.store';
 import { BsCustomDates } from './bs-custom-dates-view.component';
-import { BsDatepickerConfig } from '../../bs-datepicker.config';
 
 @Component({
   selector: 'bs-datepicker-container',
@@ -209,18 +206,25 @@ export class BsDatepickerContainerComponent implements OnInit {
     this._bsDatepickerStore.dispatch(this._actions.navigateStep(event.step));
   }
 
-  dayHoverHandler(event: DayHoverEvent): void {
-    if (event.day.isOtherMonth || event.day.isDisabled) {
+  /** hover handlers */
+  dayHoverHandler(event: CellHoverEvent): void {
+    const _cell = event.cell as DayViewModel;
+    if (_cell.isOtherMonth || _cell.isDisabled) {
       return;
     }
     this._bsDatepickerStore.dispatch(this._actions.hoverDay(event));
-    event.day.isHovered = event.isHovered;
+    _cell.isHovered = event.isHovered;
   }
 
-  monthHoverHandler(event: MonthHoverEvent): void {
-    event.month.isHovered = event.isHovered;
+  monthHoverHandler(event: CellHoverEvent): void {
+    event.cell.isHovered = event.isHovered;
   }
 
+  yearHoverHandler(event: CellHoverEvent): void {
+    event.cell.isHovered = event.isHovered;
+  }
+
+  /** select handlers */
   daySelectHandler(day: DayViewModel): void {
     if (day.isOtherMonth || day.isDisabled) {
       return;
@@ -228,7 +232,7 @@ export class BsDatepickerContainerComponent implements OnInit {
     this._bsDatepickerStore.dispatch(this._actions.select(day.date));
   }
 
-  monthSelectHandler(event: MonthViewModel): void {
+  monthSelectHandler(event: CalendarCellViewModel): void {
     if (event.isDisabled) { return; }
     this._bsDatepickerStore.dispatch(this._actions.navigateTo({
       unit: {month: getMonth(event.date)},
@@ -236,16 +240,12 @@ export class BsDatepickerContainerComponent implements OnInit {
     }));
   }
 
-  yearSelectHandler(event: YearViewModel): void {
+  yearSelectHandler(event: CalendarCellViewModel): void {
     if (event.isDisabled) { return; }
     this._bsDatepickerStore.dispatch(this._actions.navigateTo({
       unit: {year: getFullYear(event.date)},
       viewMode: 'month'
     }));
-  }
-
-  yearHoverHandler(event: YearHoverEvent): void {
-    event.year.isHovered = event.isHovered;
   }
 
   _stopPropagation(event: any): void {

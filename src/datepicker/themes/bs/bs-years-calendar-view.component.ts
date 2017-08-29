@@ -1,18 +1,20 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import {
-  BsDatepickerViewMode, BsNavigationDirection,
-  BsNavigationEvent,
-  DatepickerRenderOptions, MonthHoverEvent, MonthsCalendarViewModel,
-  MonthViewModel, YearHoverEvent, YearsCalendarViewModel, YearViewModel
-} from '../../models/index';
 import { yearsPerCalendar } from '../../engine/format-years-calendar';
+import {
+  BsDatepickerViewMode,
+  BsNavigationDirection,
+  BsNavigationEvent,
+  CalendarCellViewModel,
+  CellHoverEvent,
+  YearsCalendarViewModel
+} from '../../models/index';
 
 @Component({
   selector: 'bs-years-calendar-view',
   template: `
     <!--current date-->
     <bs-current-date title="hey there"></bs-current-date>
-    
+
     <div class="bs-datepicker-head">
       <bs-datepicker-navigation-view
         [calendar]="calendar"
@@ -20,7 +22,7 @@ import { yearsPerCalendar } from '../../engine/format-years-calendar';
         (onViewMode)="changeViewMode($event)"
       ></bs-datepicker-navigation-view>
     </div>
-    
+
     <div class="bs-datepicker-body">
       <table role="grid" class="years">
         <tbody>
@@ -48,20 +50,20 @@ export class BsYearsCalendarViewComponent {
   @Output() onNavigate = new EventEmitter<BsNavigationEvent>();
   @Output() onViewMode = new EventEmitter<BsDatepickerViewMode>();
 
-  @Output() onSelect = new EventEmitter<YearViewModel>();
-  @Output() onHover = new EventEmitter<YearHoverEvent>();
+  @Output() onSelect = new EventEmitter<CalendarCellViewModel>();
+  @Output() onHover = new EventEmitter<CellHoverEvent>();
 
   navigateTo(event: BsNavigationDirection): void {
     const step = BsNavigationDirection.DOWN === event ? -1 : 1;
     this.onNavigate.emit({step: {year: step * yearsPerCalendar}});
   }
 
-  viewYear(year: MonthViewModel) {
+  viewYear(year: CalendarCellViewModel) {
     this.onSelect.emit(year);
   }
 
-  hoverYear(year: MonthViewModel, isHovered: boolean) {
-    this.onHover.emit({year, isHovered});
+  hoverYear(cell: CalendarCellViewModel, isHovered: boolean) {
+    this.onHover.emit({cell, isHovered});
   }
 
   changeViewMode(event: BsDatepickerViewMode): void {

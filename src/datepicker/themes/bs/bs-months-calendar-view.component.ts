@@ -2,8 +2,8 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import {
   BsDatepickerViewMode, BsNavigationDirection,
   BsNavigationEvent,
-  DatepickerRenderOptions, MonthHoverEvent, MonthsCalendarViewModel,
-  MonthViewModel
+  DatepickerRenderOptions, CellHoverEvent, MonthsCalendarViewModel,
+  CalendarCellViewModel
 } from '../../models/index';
 
 @Component({
@@ -11,7 +11,7 @@ import {
   template: `
     <!--current date-->
     <bs-current-date title="hey there"></bs-current-date>
-    
+
     <div class="bs-datepicker-head">
       <bs-datepicker-navigation-view
         [calendar]="calendar"
@@ -19,7 +19,7 @@ import {
         (onViewMode)="changeViewMode($event)"
       ></bs-datepicker-navigation-view>
     </div>
-    
+
     <div class="bs-datepicker-body">
       <table role="grid" class="months">
         <tbody>
@@ -47,20 +47,20 @@ export class BsMonthCalendarViewComponent {
   @Output() onNavigate = new EventEmitter<BsNavigationEvent>();
   @Output() onViewMode = new EventEmitter<BsDatepickerViewMode>();
 
-  @Output() onSelect = new EventEmitter<MonthViewModel>();
-  @Output() onHover = new EventEmitter<MonthHoverEvent>();
+  @Output() onSelect = new EventEmitter<CalendarCellViewModel>();
+  @Output() onHover = new EventEmitter<CellHoverEvent>();
 
   navigateTo(event: BsNavigationDirection): void {
     const step = BsNavigationDirection.DOWN === event ? -1 : 1;
     this.onNavigate.emit({step: {year: step}});
   }
 
-  viewMonth(month: MonthViewModel) {
+  viewMonth(month: CalendarCellViewModel) {
     this.onSelect.emit(month);
   }
 
-  hoverMonth(month: MonthViewModel, isHovered: boolean) {
-    this.onHover.emit({month, isHovered});
+  hoverMonth(cell: CalendarCellViewModel, isHovered: boolean) {
+    this.onHover.emit({cell, isHovered});
   }
 
   changeViewMode(event: BsDatepickerViewMode): void {

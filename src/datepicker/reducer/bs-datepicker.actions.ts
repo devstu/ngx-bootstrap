@@ -1,9 +1,7 @@
 import { Injectable } from '@angular/core';
-import {
-  BsDatepickerViewMode, BsViewNavigationEvent, DatepickerRenderOptions, DayHoverEvent
-} from '../models/index';
-import { Action } from '../../mini-ngrx/index';
 import { TimeUnit } from '../../bs-moment/types';
+import { Action } from '../../mini-ngrx/index';
+import { BsDatepickerViewMode, BsViewNavigationEvent, CellHoverEvent, DatepickerRenderOptions } from '../models/index';
 
 @Injectable()
 export class BsDatepickerActions {
@@ -71,10 +69,10 @@ export class BsDatepickerActions {
     };
   }
 
-  hoverDay(event: DayHoverEvent): Action {
+  hoverDay(event: CellHoverEvent): Action {
     return {
       type: BsDatepickerActions.HOVER,
-      payload: event.isHovered ? event.day.date : null
+      payload: event.isHovered ? event.cell.date : null
     };
   }
 

@@ -1,9 +1,12 @@
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 import {
-  ChangeDetectionStrategy, Component, EventEmitter, Input, Output
-} from '@angular/core';
-import {
-  BsDatepickerViewMode, BsNavigationDirection, BsNavigationEvent,
-  DatepickerRenderOptions, DayHoverEvent, DaysCalendarViewModel, DayViewModel
+  BsDatepickerViewMode,
+  BsNavigationDirection,
+  BsNavigationEvent,
+  CellHoverEvent,
+  DatepickerRenderOptions,
+  DaysCalendarViewModel,
+  DayViewModel
 } from '../../models/index';
 
 @Component({
@@ -12,7 +15,7 @@ import {
   template: `
     <!--current date-->
     <bs-current-date title="hey there"></bs-current-date>
-    
+
     <!--navigation-->
     <div class="bs-datepicker-head">
       <bs-datepicker-navigation-view
@@ -21,7 +24,7 @@ import {
         (onViewMode)="changeViewMode($event)"
       ></bs-datepicker-navigation-view>
     </div>
-    
+
     <div class="bs-datepicker-body">
       <!--days matrix-->
       <table role="grid" class="days weeks">
@@ -63,7 +66,7 @@ export class BsDaysCalendarViewComponent {
   @Output() onViewMode = new EventEmitter<BsDatepickerViewMode>();
 
   @Output() onSelect = new EventEmitter<DayViewModel>();
-  @Output() onHover = new EventEmitter<DayHoverEvent>();
+  @Output() onHover = new EventEmitter<CellHoverEvent>();
 
   navigateTo(event: BsNavigationDirection): void {
     const step = BsNavigationDirection.DOWN === event ? -1 : 1;
@@ -78,7 +81,7 @@ export class BsDaysCalendarViewComponent {
     this.onSelect.emit(event);
   }
 
-  hoverDay(day: DayViewModel, isHovered: boolean): void {
-    this.onHover.emit({day, isHovered});
+  hoverDay(cell: DayViewModel, isHovered: boolean): void {
+    this.onHover.emit({cell, isHovered});
   }
 }

@@ -2,8 +2,8 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { BsDatepickerStore } from '../../reducer/bs-datepicker.store';
 import { BsDatepickerActions } from '../../reducer/bs-datepicker.actions';
 import {
-  BsNavigationEvent, DatepickerRenderOptions, DayHoverEvent, DayViewModel,
-  DaysCalendarViewModel, BsDatepickerViewMode, MonthsCalendarViewModel, YearsCalendarViewModel
+  BsNavigationEvent, DatepickerRenderOptions, CalendarCellViewModel, DayViewModel,
+  DaysCalendarViewModel, BsDatepickerViewMode, MonthsCalendarViewModel, YearsCalendarViewModel, CellHoverEvent
 } from '../../models/index';
 import 'rxjs/add/operator/filter';
 import { Observable } from 'rxjs/Observable';
@@ -166,12 +166,12 @@ export class BsDaterangepickerContainerComponent implements OnInit {
     this._bsDatepickerStore.dispatch(this._actions.navigateStep(event.step));
   }
 
-  hoverHandler(event: DayHoverEvent): void {
-    if (event.day.isOtherMonth) {
+  hoverHandler(event: CellHoverEvent): void {
+    if ((event.cell as DayViewModel).isOtherMonth) {
       return;
     }
     this._bsDatepickerStore.dispatch(this._actions.hoverDay(event));
-    event.day.isHovered = event.isHovered;
+    event.cell.isHovered = event.isHovered;
   }
 
   selectHandler(day: DayViewModel): void {

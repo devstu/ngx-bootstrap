@@ -1,5 +1,5 @@
 import {
-  DatepickerFormatOptions, YearsCalendarViewModel, YearViewModel
+  DatepickerFormatOptions, YearsCalendarViewModel, CalendarCellViewModel
 } from '../models/index';
 import { shiftDate } from '../../bs-moment/utils/date-setters';
 import { formatDate } from '../../bs-moment/format';
@@ -16,7 +16,7 @@ export function formatYearsCalendar(viewDate: Date, formatOptions: DatepickerFor
 
   const initialDate = shiftDate(viewDate, {year: initialShift});
   const matrixOptions = {width, height, initialDate, shift};
-  const yearsMatrix = createMatrix<YearViewModel>(matrixOptions,
+  const yearsMatrix = createMatrix<CalendarCellViewModel>(matrixOptions,
     date => ({
       date,
       label: formatDate(date, formatOptions.yearLabel, formatOptions.locale)
@@ -30,7 +30,7 @@ export function formatYearsCalendar(viewDate: Date, formatOptions: DatepickerFor
   };
 }
 
-function formatYearRangeTitle(yearsMatrix: YearViewModel[][], formatOptions: DatepickerFormatOptions): string {
+function formatYearRangeTitle(yearsMatrix: CalendarCellViewModel[][], formatOptions: DatepickerFormatOptions): string {
   const from = formatDate(yearsMatrix[0][0].date, formatOptions.yearTitle, formatOptions.locale);
   const to = formatDate(yearsMatrix[height - 1][width - 1].date, formatOptions.yearTitle, formatOptions.locale);
 
